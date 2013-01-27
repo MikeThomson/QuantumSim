@@ -107,18 +107,19 @@ __kernel void hadamardGate(__global const float* reals, __global const float* im
         return;
 	cfloat oldAmp = (cfloat) (reals[i], imagin[i]);
 	cfloat amp;
-	int oldIndex;
-	if ((i >> qubit) % 2 == 0) { // can probably be changed from a conditional to multiplication by 0
-		oldIndex = i + (1 << qubit);
-		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
-		cfloat root2 = (cfloat) (1.41421356237,0);
-		amp = cdiv((oldAmp - oldAmp2),root2);
-	} else {
-		oldIndex = i - (1 << qubit);
-		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
-		cfloat root2 = (cfloat) (1.41421356237,0);
-		amp = cdiv((oldAmp2 - oldAmp),root2);
-	}
+	
+	int indexRepresents = (i >> qubit) % 2;
+	
+	int oldIndex = ((i + (1 << qubit))  * (1 - indexRepresents)) 
+				+ ((i - (1 << qubit)) * (-1 * (0-indexRepresents)));
+	
+	cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
+	cfloat root2 = (cfloat) (1.41421356237,0);
+	
+	cfloat numerator = ((oldAmp - oldAmp2) * (1 - indexRepresents)) 
+					+ ((oldAmp2 - oldAmp) * (-1 * (0-indexRepresents)));
+	
+	amp = cdiv(numerator,root2);
 	realRet[i] = real(amp);
 	imagRet[i] = imag(amp);
 }

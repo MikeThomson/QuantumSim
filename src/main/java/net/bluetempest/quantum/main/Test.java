@@ -31,7 +31,7 @@ public class Test {
 		}
 		*/
 		
-		Register p = new Register(20);
+		Register p = new Register(2);
 		long t1 = System.currentTimeMillis();
 		p.test();
 		long t2 = System.currentTimeMillis();

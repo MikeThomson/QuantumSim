@@ -159,6 +159,13 @@ public class Register {
 			Pointer<Float> imagOutPtr = imagOut.read(queue, addEvt);
 			float[] arr = (float[]) realOutPtr.getArray();
 			float[] arr2 = (float[]) imagOutPtr.getArray();
+			/*
+			for(int i = 0;i<arr.length;i++) {
+				System.out.print(arr[i]);
+				System.out.print(" ");
+				System.out.println(arr2[i]);
+			}
+			*/
 			
 		} catch (IOException e) {
 			e.printStackTrace();
