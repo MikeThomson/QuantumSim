@@ -1,12 +1,11 @@
 package net.bluetempest.quantum;
 
-import gates.Hadamard;
-
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Random;
 
 import net.bluetempest.math.Complex;
+import net.bluetempest.quantum.gates.Gates;
 
 import org.bridj.Pointer;
 
@@ -22,6 +21,20 @@ public class Register {
 	public Complex[] amplitudes;
 	public int qubitCount;
 	
+	private boolean openclInitialized = false;
+	private boolean openclEnabled = false;
+	
+	private CLBuffer<Float> realExisting;
+	private CLBuffer<Float> imagExisting;
+	private CLBuffer<Float> realOutput;
+	private CLBuffer<Float> imagOutput;
+	private CLEvent lastEvent;
+	
+	private CLContext context;
+	private CLQueue queue;
+	private Gates kernels;
+	
+	
 	public Register(int qubits) {
 		qubitCount = qubits;
 		setZeroState();
@@ -33,6 +46,49 @@ public class Register {
 		amplitudes = new Complex[ampSize];
 		for(int i=0;i<amplitudes.length;i++)
 			amplitudes[i] = new Complex(0,0);
+	}
+	
+	public void initOpencl() {
+		context = JavaCL.createBestContext();
+        queue = context.createDefaultQueue();
+        
+        ByteOrder byteOrder = context.getByteOrder();
+        
+        Pointer<Float>
+        realPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder),
+        imagPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder);
+		
+        for (int i = 0; i < amplitudes.length; i++) {
+            realPtr.set(i, amplitudes[i].getReal());
+            imagPtr.set(i, amplitudes[i].getImaginary());
+        }
+		
+        realExisting = context.createFloatBuffer(Usage.InputOutput, realPtr);
+        imagExisting = context.createFloatBuffer(Usage.InputOutput, imagPtr);
+        realOutput = context.createFloatBuffer(Usage.InputOutput, amplitudes.length);
+        imagOutput = context.createFloatBuffer(Usage.InputOutput, amplitudes.length);
+        
+        try {
+			kernels = new Gates(context);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        openclInitialized = true;
+	}
+	
+	public void HadamardOpencl(int qubit) { 
+		lastEvent = kernels.hadamardGate(queue, realExisting, imagExisting, realOutput, imagOutput, qubit, amplitudes.length,new int[] {amplitudes.length}, null,lastEvent);
+		swapOpenclBuffers();
+	}
+	
+	private void swapOpenclBuffers() {
+		CLBuffer<Float> tReal = realExisting;
+		CLBuffer<Float> tImag = imagExisting;
+		realExisting = realOutput;
+		imagExisting = imagOutput;
+		realOutput = tReal;
+		imagOutput = tImag;
 	}
 	
 	public Complex[] getAmplitudes() {
@@ -132,45 +188,21 @@ public class Register {
 	}
 	
 	public void test() {
-		CLContext context = JavaCL.createBestContext();
-        CLQueue queue = context.createDefaultQueue();
-        ByteOrder byteOrder = context.getByteOrder();
         
-        Pointer<Float>
-        realPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder),
-        imagPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder);
+        
+	}
+	
+	public void commitOpencl() {
+		Pointer<Float> realOutPtr = realExisting.read(queue, lastEvent);
+		Pointer<Float> imagOutPtr = imagExisting.read(queue, lastEvent);
 		
-        for (int i = 0; i < amplitudes.length; i++) {
-            realPtr.set(i, amplitudes[i].getReal());
-            imagPtr.set(i, amplitudes[i].getImaginary());
-        }
-        
-        CLBuffer<Float> 
-        realBuffer = context.createBuffer(Usage.Input, realPtr),
-        imagBuffer = context.createBuffer(Usage.Input, imagPtr);
-        
-        CLBuffer<Float> realOut = context.createFloatBuffer(Usage.Output, amplitudes.length);
-        CLBuffer<Float> imagOut = context.createFloatBuffer(Usage.Output, amplitudes.length);
-        
-        try {
-			Hadamard kernels = new Hadamard(context);
-			CLEvent addEvt = kernels.hadamardGate(queue, realBuffer, imagBuffer, realOut, imagOut, 0, amplitudes.length,new int[] {amplitudes.length}, null);
-			Pointer<Float> realOutPtr = realOut.read(queue, addEvt);
-			Pointer<Float> imagOutPtr = imagOut.read(queue, addEvt);
-			float[] arr = (float[]) realOutPtr.getArray();
-			float[] arr2 = (float[]) imagOutPtr.getArray();
-			/*
-			for(int i = 0;i<arr.length;i++) {
-				System.out.print(arr[i]);
-				System.out.print(" ");
-				System.out.println(arr2[i]);
-			}
-			*/
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Couldn't load source");
+		float[] arr = (float[]) realOutPtr.getArray();
+		float[] arr2 = (float[]) imagOutPtr.getArray();
+		
+		for(int i=0;i<arr.length;i++) {
+			amplitudes[i] = new Complex(arr[i],arr2[i]);
 		}
+		
 	}
 
 }
