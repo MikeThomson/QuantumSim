@@ -1,6 +1,6 @@
 package net.bluetempest.quantum.main;
 
-import net.bluetempest.quantum.Psi;
+import net.bluetempest.quantum.Register;
 
 public class Test {
 
@@ -24,7 +24,7 @@ public class Test {
 			System.out.println(arrToString(register.collapse()));
 		}
 		*/
-		Psi p = new Psi(2);
+		Register p = new Register(2);
 		p.test();
 	}
 	

@@ -17,12 +17,12 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
 
-public class Psi {
+public class Register {
 	
 	public Complex[] amplitudes;
 	public int qubitCount;
 	
-	public Psi(int qubits) {
+	public Register(int qubits) {
 		qubitCount = qubits;
 		setZeroState();
 		this.amplitudes[0] = new Complex(1f,0);
