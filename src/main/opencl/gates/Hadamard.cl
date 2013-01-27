@@ -2,7 +2,16 @@
 typedef float2 cfloat;
 
 #define I ((cfloat)(0.0, 1.0))
+#define M_PI ((float) 3.14159)
 
+// prototypes 
+float real(cfloat a);
+float  imag(cfloat a);
+float cmod(cfloat a);
+float carg(cfloat a);
+cfloat  cmult(cfloat a, cfloat b);
+cfloat  cdiv(cfloat a, cfloat b);
+cfloat csqrt(cfloat a);
 
 /*
  * Return Real (Imaginary) component of complex number:
@@ -92,19 +101,19 @@ inline cfloat cdiv(cfloat a, cfloat b){
      return (cfloat)( sqrt(cmod(a)) * cos(carg(a)/2),  sqrt(cmod(a)) * sin(carg(a)/2));
  }
 
-__kernel void hadamardGate(__global const float* reals, __global const float* imag, __global float* realRet, __global float* imagRet, int qubit) {
+__kernel void hadamardGate(__global const float* reals, __global const float* imagin, __global float* realRet, __global float* imagRet, int qubit) {
 	int i = get_global_id(0);
-	cFloat oldAmp = (cFloat) (reals[i], imag[i]);
-	cFloat amp;
+	cfloat oldAmp = (cfloat) (reals[i], imagin[i]);
+	cfloat amp;
 	if ((i >> qubit) % 2 == 0) { // can probably be changed from a conditional to multiplication by 0
 		int oldIndex = i + (1 << qubit);
-		cFloat oldAmp2 = (cFloat) (reals[oldIndex],imag[oldIndex]); 
-		cFloat root2 = (cFloat) (1.41421356237,0);
+		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
+		cfloat root2 = (cfloat) (1.41421356237,0);
 		amp = cdiv((oldAmp - oldAmp2),root2);
 	} else {
 		int oldIndex = i + (1 << qubit);
-		cFloat oldAmp2 = (cFloat) (reals[oldIndex],imag[oldIndex]); 
-		cFloat root2 = (cFloat) (1.41421356237,0);
+		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
+		cfloat root2 = (cfloat) (1.41421356237,0);
 		amp = cdiv((oldAmp2 - oldAmp),root2);
 	}
 	realRet[i] = real(amp);

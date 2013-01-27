@@ -1,10 +1,11 @@
 package net.bluetempest.quantum;
 
+import gates.Hadamard;
+
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Random;
 
-import main.java.gates.Hadamard;
 import net.bluetempest.math.Complex;
 
 import org.bridj.Pointer;
