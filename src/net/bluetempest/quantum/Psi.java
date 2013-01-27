@@ -1,8 +1,20 @@
 package net.bluetempest.quantum;
 
+import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.Random;
 
+import main.java.gates.Hadamard;
 import net.bluetempest.math.Complex;
+
+import org.bridj.Pointer;
+
+import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLEvent;
+import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.JavaCL;
 
 public class Psi {
 	
@@ -116,6 +128,37 @@ public class Psi {
 			weights[i] = abs * abs;
 		}
 		return weights;
+	}
+	
+	public void test() {
+		CLContext context = JavaCL.createBestContext();
+        CLQueue queue = context.createDefaultQueue();
+        ByteOrder byteOrder = context.getByteOrder();
+        
+        Pointer<Float>
+        realPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder),
+        imagPtr = Pointer.allocateFloats(amplitudes.length).order(byteOrder);
+		
+        for (int i = 0; i < amplitudes.length; i++) {
+            realPtr.set(i, amplitudes[i].getReal());
+            imagPtr.set(i, amplitudes[i].getImaginary());
+        }
+        
+        CLBuffer<Float> 
+        realBuffer = context.createBuffer(Usage.Input, realPtr),
+        imagBuffer = context.createBuffer(Usage.Input, imagPtr);
+        
+        CLBuffer<Float> realOut = context.createFloatBuffer(Usage.Output, amplitudes.length);
+        CLBuffer<Float> imagOut = context.createFloatBuffer(Usage.Output, amplitudes.length);
+        
+        try {
+			Hadamard kernels = new Hadamard(context);
+			CLEvent addEvt = kernels.hadamardGate(queue, realBuffer, imagBuffer, realOut, imagOut, 1, new int[] {amplitudes.length}, null);
+					
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Couldn't load source");
+		}
 	}
 
 }

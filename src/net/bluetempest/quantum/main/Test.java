@@ -8,11 +8,14 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+		/*
 		for(int i=0;i<10;i++) {
-			Psi register = new Psi(2);
-			register.hadamardGate(0);
-			register.controlledNot(0,1);
+			Psi register = new Psi(20);
+			for(int j=0;j<16;j++) {
+				register.hadamardGate(j);
+			}
+			//register.hadamardGate(0);
+			//register.controlledNot(0,1);
 			//System.out.println(arrToString(register.getWeights()));
 			
 			//register.phaseGate(0, 8);
@@ -20,7 +23,9 @@ public class Test {
 			//register.controlledNot(0, 1);
 			System.out.println(arrToString(register.collapse()));
 		}
-		
+		*/
+		Psi p = new Psi(2);
+		p.test();
 	}
 	
 	private static String arrToString(float[] arr) {
