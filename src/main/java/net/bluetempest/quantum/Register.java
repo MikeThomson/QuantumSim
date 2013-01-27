@@ -154,8 +154,12 @@ public class Register {
         
         try {
 			Hadamard kernels = new Hadamard(context);
-			CLEvent addEvt = kernels.hadamardGate(queue, realBuffer, imagBuffer, realOut, imagOut, 1, new int[] {amplitudes.length}, null);
-					
+			CLEvent addEvt = kernels.hadamardGate(queue, realBuffer, imagBuffer, realOut, imagOut, 0, amplitudes.length,new int[] {amplitudes.length}, null);
+			Pointer<Float> realOutPtr = realOut.read(queue, addEvt);
+			Pointer<Float> imagOutPtr = imagOut.read(queue, addEvt);
+			float[] arr = (float[]) realOutPtr.getArray();
+			float[] arr2 = (float[]) imagOutPtr.getArray();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Couldn't load source");

@@ -101,17 +101,20 @@ inline cfloat cdiv(cfloat a, cfloat b){
      return (cfloat)( sqrt(cmod(a)) * cos(carg(a)/2),  sqrt(cmod(a)) * sin(carg(a)/2));
  }
 
-__kernel void hadamardGate(__global const float* reals, __global const float* imagin, __global float* realRet, __global float* imagRet, int qubit) {
+__kernel void hadamardGate(__global const float* reals, __global const float* imagin, __global float* realRet, __global float* imagRet, int qubit, int n) {
 	int i = get_global_id(0);
+	if (i >= n)
+        return;
 	cfloat oldAmp = (cfloat) (reals[i], imagin[i]);
 	cfloat amp;
+	int oldIndex;
 	if ((i >> qubit) % 2 == 0) { // can probably be changed from a conditional to multiplication by 0
-		int oldIndex = i + (1 << qubit);
+		oldIndex = i + (1 << qubit);
 		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
 		cfloat root2 = (cfloat) (1.41421356237,0);
 		amp = cdiv((oldAmp - oldAmp2),root2);
 	} else {
-		int oldIndex = i + (1 << qubit);
+		oldIndex = i - (1 << qubit);
 		cfloat oldAmp2 = (cfloat) (reals[oldIndex],imagin[oldIndex]); 
 		cfloat root2 = (cfloat) (1.41421356237,0);
 		amp = cdiv((oldAmp2 - oldAmp),root2);

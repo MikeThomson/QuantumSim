@@ -8,6 +8,12 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		//Register psi = new Register(20);
+		//psi.hadamardGate(0);
+		//System.out.println("Done 1");
+		//for(int i=0;i<psi.amplitudes.length;i++) {
+		//	System.out.println(psi.amplitudes[i]);
+		//}
 		/*
 		for(int i=0;i<10;i++) {
 			Psi register = new Psi(20);
@@ -24,8 +30,13 @@ public class Test {
 			System.out.println(arrToString(register.collapse()));
 		}
 		*/
-		Register p = new Register(2);
+		
+		Register p = new Register(20);
+		long t1 = System.currentTimeMillis();
 		p.test();
+		long t2 = System.currentTimeMillis();
+		System.out.print("Done in ");
+		System.out.println((t2-t1));
 	}
 	
 	private static String arrToString(float[] arr) {
