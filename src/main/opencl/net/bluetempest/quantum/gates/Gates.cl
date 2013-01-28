@@ -12,6 +12,13 @@ float carg(cfloat a);
 cfloat  cmult(cfloat a, cfloat b);
 cfloat  cdiv(cfloat a, cfloat b);
 cfloat csqrt(cfloat a);
+cfloat cexp(cfloat a);
+
+inline cfloat cexp(cfloat a) {
+	float cosy; 
+    float siny = sincos(a.y, &cosy);
+    return (cfloat)(a.x*cosy, a.x*siny);
+}
 
 /*
  * Return Real (Imaginary) component of complex number:
@@ -124,3 +131,19 @@ __kernel void hadamardGate(__global const float* reals, __global const float* im
 	imagRet[i] = imag(amp);
 }
 
+__kernel void phaseGate(__global const float* reals, __global const float* imagin, __global float* realRet, __global float* imagRet, int qubit, int phase,int n) {
+	int i = get_global_id(0);
+	if (i >= n)
+        return;
+        
+    cfloat oldAmp = (cfloat) (reals[i], imagin[i]);
+    int indexRepresents = (i >> qubit) % 2;
+	cfloat e = cexp(
+					((cmult(-I, M_PI / (float)phase)) * (1 - indexRepresents)) 
+					+ ((cmult(I, M_PI / (float)phase)) * (-1 * (0-indexRepresents)))
+	);
+	cfloat amp = cmult(oldAmp, e);
+	realRet[i] = real(amp);
+	imagRet[i] = imag(amp);
+    
+}

@@ -82,6 +82,11 @@ public class Register {
 		swapOpenclBuffers();
 	}
 	
+	public void phaseOpencl(int qubit, int phase) {
+		lastEvent = kernels.phaseGate(queue, realExisting, imagExisting, realOutput, imagOutput, qubit, phase,amplitudes.length,new int[] {amplitudes.length}, null,lastEvent);
+		swapOpenclBuffers();
+	}
+	
 	private void swapOpenclBuffers() {
 		CLBuffer<Float> tReal = realExisting;
 		CLBuffer<Float> tImag = imagExisting;

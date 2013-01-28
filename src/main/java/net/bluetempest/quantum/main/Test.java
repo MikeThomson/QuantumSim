@@ -8,25 +8,28 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Register psi = new Register(16);
+		Register psi = new Register(2);
 		
 		
 		long t11 = System.currentTimeMillis();
-		psi.hadamardGate(0);
-		psi.hadamardGate(1);
-		psi.hadamardGate(2);
-		psi.hadamardGate(3);
-		psi.hadamardGate(4);
-		psi.hadamardGate(5);
-		psi.hadamardGate(6);
-		psi.hadamardGate(7);
-		psi.hadamardGate(8);
-		psi.hadamardGate(9);
-		psi.hadamardGate(10);
-		psi.hadamardGate(11);
-		psi.hadamardGate(12);
-		psi.hadamardGate(13);
+		psi.phaseGate(0,8);
+		psi.phaseGate(1,8);
+		/*
+		psi.phaseGate(2,8);
+		psi.phaseGate(3,8);
+		psi.phaseGate(4,8);
+		psi.phaseGate(5,8);
+		psi.phaseGate(6,8);
+		psi.phaseGate(7,8);
+		psi.phaseGate(8,8);
+		psi.phaseGate(9,8);
+		psi.phaseGate(10,8);
+		psi.phaseGate(11,8);
+		psi.phaseGate(12,8);
+		psi.phaseGate(13,8);
+		*/
 		long t22 = System.currentTimeMillis();
+		System.out.print(arrToString(psi.getWeights()));
 		System.out.print("Done in ");
 		System.out.println((t22-t11));
 		
@@ -38,9 +41,9 @@ public class Test {
 		for(int i=0;i<10;i++) {
 			Psi register = new Psi(20);
 			for(int j=0;j<16;j++) {
-				register.hadamardGate(j);
+				register.phaseGate(j);
 			}
-			//register.hadamardGate(0);
+			//register.phaseGate(0);
 			//register.controlledNot(0,1);
 			//System.out.println(arrToString(register.getWeights()));
 			
@@ -51,25 +54,27 @@ public class Test {
 		}
 		*/
 		
-		Register p = new Register(20);
+		Register p = new Register(2);
 		
 		long t1 = System.currentTimeMillis();
 		p.initOpencl();
 		long t3 = System.currentTimeMillis();
-		p.HadamardOpencl(0);
-		p.HadamardOpencl(1);
-		p.HadamardOpencl(2);
-		p.HadamardOpencl(3);
-		p.HadamardOpencl(4);
-		p.HadamardOpencl(5);
-		p.HadamardOpencl(6);
-		p.HadamardOpencl(7);
-		p.HadamardOpencl(8);
-		p.HadamardOpencl(9);
-		p.HadamardOpencl(10);
-		p.HadamardOpencl(11);
-		p.HadamardOpencl(12);
-		p.HadamardOpencl(13);
+		p.phaseOpencl(0,8);
+		p.phaseOpencl(1,8);
+		/*
+		p.phaseOpencl(2,8);
+		p.phaseOpencl(3,8);
+		p.phaseOpencl(4,8);
+		p.phaseOpencl(5,8);
+		p.phaseOpencl(6,8);
+		p.phaseOpencl(7,8);
+		p.phaseOpencl(8,8);
+		p.phaseOpencl(9,8);
+		p.phaseOpencl(10,8);
+		p.phaseOpencl(11,8);
+		p.phaseOpencl(12,8);
+		p.phaseOpencl(13,8);
+		*/
 		long t2 = System.currentTimeMillis();
 		p.commitOpencl();
 		
@@ -79,6 +84,7 @@ public class Test {
 		System.out.println((t2-t1));
 		System.out.print("Kernel in ");
 		System.out.println((t3-t1));
+		System.out.println(arrToString(p.getWeights()));
 	}
 	
 	private static String arrToString(float[] arr) {
